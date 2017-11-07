@@ -1,30 +1,28 @@
 matrix:
   include:
-    - os: linux
-      sudo: required
-      env: TARGET_CPU=x64
-      addons:
-        apt: &x64-apt
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-4.8
-          - g++-4.8
-          - libglib2.0-dev
-          - libgtk2.0-dev
-          - libxtst-dev
-          - libxss-dev
-          - libpci-dev
-          - libdbus-1-dev
-          - libgconf2-dev
-          - libgnome-keyring-dev
-          - libnss3-dev
-          - libasound2-dev
-          - libpulse-dev
-          - libudev-dev
-
+  - os: linux
+    sudo: required
+    env: TARGET_CPU=x64
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - gcc-4.8
+        - g++-4.8
+        - libglib2.0-dev
+        - libgtk2.0-dev
+        - libxtst-dev
+        - libxss-dev
+        - libpci-dev
+        - libdbus-1-dev
+        - libgconf2-dev
+        - libgnome-keyring-dev
+        - libnss3-dev
+        - libasound2-dev
+        - libpulse-dev
+        - libudev-dev
 language: cpp
-
 before_install:
 - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
 - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
@@ -39,16 +37,20 @@ before_install:
   fi
 - cd ${TRAVIS_BUILD_DIR}
 - cmake --version
-
 install:
 - git submodule init
 - git submodule update
 - mkdir out
 - cd out
-- cmake -DBUILD_SAMPLE=1 -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DBUILD_DEB_PACKAGE=1 -DCMAKE_INSTALL_PREFIX=. -DTARGET_CPU=$TARGET_CPU ..
-
+- cmake -DBUILD_SAMPLE=1 -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DBUILD_DEB_PACKAGE=1
+  -DCMAKE_INSTALL_PREFIX=. -DTARGET_CPU=$TARGET_CPU ..
 script:
 - make -j 4 package
-
-before_deploy:
-  - export TRAVIS_ARTIFACTS=$(ls libwebrtc-*.tar.gz)
+deploy:
+  provider: releases
+  api_key:
+    secure: PSZxqYtSM1PCMWJmWP5OJeJK80Kutm0VUUFYV0sKIUjqDs/pt8ZN/KLad75VWIWBLZk5DQsod8kSakRv/FLgm86/JccOVRGST9hc8JsiawA0kvI7TgkFYuap6e0QzVfpUeTmz+C5gk0Z7+6L0JwN3YQleQdCeSan9CyTQzjetJNkGe7zGdoEBaxi6lCSdJTtmT3tASD01F+xqYDH3LOvRRWqqzD/J7FC+EhVI94JiyZEAHnk3KWjANwxgX/Df7cqHUhDYZaUUlBIVXPMXd+hGI12Ugux6KfE6ev8DrVIelywLkG6ZWdBqtMQuCySaeOoH3h+SvKosIfFEEUJgdAG8NhCg67QjwePxsO0MPF/tL4QfcBYKqb5flVmLZUvPoFG57AH2shz2CsbhAg0hJMpLquw3aykwGhArQsqlC/Hcs5gYb02eBe+BPjc9vPQ92KytozJ6Ch3+eGflSrbK/UqjE5BdPqtVc+I/ohusmgiaeHs2sMXfeWPh2G7yU/5nGJ4GAwq2IcSzO6L23uBqnpvZE01KNeNW5rSjhx8WcyBmo2Vf16i2SrGrN4NzeOdFnLmp+xJCHPnCO8/9f2lsoMsd5tZjaCywBRIdtwvS+me9rUSL1Dckde7Fdsp7w3k7F0LfGogNxhsAmvApYPgpuv9Akt8QFdti7Z8uRjvhVfw8sk=
+  file: "libwebrtc-*.deb"
+  on:
+    repo: otamachan/libwebrtc
+    tags: true
