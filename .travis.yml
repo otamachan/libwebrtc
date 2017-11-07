@@ -23,24 +23,6 @@ matrix:
           - libpulse-dev
           - libudev-dev
 
-    - os: linux
-      sudo: required
-      env: TARGET_CPU=x64 CMAKE_BUILD_TYPE=Debug
-      addons:
-        apt: *x64-apt
-
-    - os: osx
-      osx_image: xcode7.3
-      env: TARGET_CPU=x64
-      addons:
-        apt: *x64-apt
-
-    - os: osx
-      osx_image: xcode7.3
-      env: TARGET_CPU=x64 CMAKE_BUILD_TYPE=Debug
-      addons:
-        apt: *x64-apt
-
 language: cpp
 
 before_install:
@@ -63,21 +45,10 @@ install:
 - git submodule update
 - mkdir out
 - cd out
-- cmake -DBUILD_SAMPLE=1 -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DCMAKE_INSTALL_PREFIX=. -DTARGET_CPU=$TARGET_CPU ..
+- cmake -DBUILD_SAMPLE=1 -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DBUILD_DEB_PACKAGE=1 -DCMAKE_INSTALL_PREFIX=usr/local -DTARGET_CPU=$TARGET_CPU ..
 
 script:
 - make -j 4 package
 
 before_deploy:
   - export TRAVIS_ARTIFACTS=$(ls libwebrtc-*.tar.gz)
-
-deploy:
-  provider: releases
-  api_key:
-    secure: UazaqOOoifs5xE/xw+tjVnFAkl6MMJeZSW7B0DXX0wnHorKM5K72q9Ms3JYvJIp6DDV3vIeX/Yv/WQCnfRkDDhcbLohGZoOj2X3q53RSfJiOq/iIyPiPTRmkk3jQRBOvXl5zLePNaXU2vBuSgcM8az+wGjxaDLUB+EebSGRHPbXrGSnDDHaNnmb4Zm7SZ2DpL5ubRDlLTHst7Jh7OigrIblYKNCzwEc7UQsFNzLnu7dyZT4hF2Y+2KYl/3vUUkUGxu0AxVG7zilnjJE7O5gX76r+SQXs151uWwZeH41NNPxRSod51LKQS/V/I4afjjTaYC5+9lSUdNkOpEGrxU+61hSJvNGxL6rTqfiBTAOiJdMR3u4OmF+B72O0nUUpsNtlkSPBK9402Z65LH/UI2BIJ/oMfkjNSzTNTHvB+n+18nFryzUmgEJ4CEy7Yx5HGO1vXCP4OsHGAu5YCkDGV2uVttiYHlm2qWgTY59cQt61h1saQWMwj6Uivhz8XrS86K0r/YAS30t+7+/xG6dneXgctM9oYjIbVCFnImsE30FpWlCJvGnJzo37wctbTQscHs5iuqjt1an7AhQgOTMQwmtyyg32D6N9e4n+RJA9pEj3Qtpi51LVD1cdCahbZ1l4bURlNueqfB3d4oZvr9o/QNjm+qH/FRUWjAmWtbBr16ZXfiA=
-  file_glob: true
-  file: "${TRAVIS_ARTIFACTS}"
-  skip_cleanup: true
-  on:
-    tags: true
-    repo: aisouard/libwebrtc
